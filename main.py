@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter
 
 from app.api.v1.routes.lifecheck import router as lifecheck_router
+from app.api.v1.routes.notify import router as notify_router
 
 
 
@@ -33,6 +34,7 @@ class FastAPIapp:
         self.app_routers: dict[str, list[APIRouter]] = {
             '/v1': [
                 lifecheck_router,
+                notify_router,
                 # more routers ...
             ]
         }

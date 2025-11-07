@@ -11,5 +11,5 @@ router = APIRouter(prefix='/notify')
 
 
 @router.post("/")
-async def wating_notify(advert: NewCarNotify):
+async def waiting_notify(advert: NewCarNotify):
     return advert.model_dump()

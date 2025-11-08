@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     значения по умолчанию, указанные ниже.
     """
 
+    # FastAPI
+    fastapi_host: str = Field("localhost", env="FASTAPI_HOST")
+    fastapi_port: int = Field(8000, env="FASTAPI_PORT")
+
     # Redis (env names are defined explicitly to match .env/.env.template)
     redis_host: str = Field("localhost", env="REDIS_HOST")
     redis_port: int = Field(6379, env="REDIS_PORT")

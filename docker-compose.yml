@@ -1,20 +1,40 @@
-# docker-compose для локальной разработки: запускает только Redis.
-# Redis доступен на localhost:6379 (порт прокидывается наружу), без пароля.
-# Создаётся внутренняя сеть `new_car_sell_notify_net` для общения между сервисами (можно добавить fastapi сервис позже).
+# docker-compose для локальной разработки: запускает Redis и FastAPI приложение.
+# Redis и API доступны на localhost (порты из .env прокидываются наружу).
+# Создаётся внутренняя сеть `new_car_sell_notify_net` для общения между сервисами.
 
 services:
-  redis:
+  new_car_sell_notify_service_redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: new_car_sell_notify_service_redis
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
-      - "127.0.0.1:6379:6379"  # ограничиваем доступ хостом localhost
+      - "127.0.0.1:${REDIS_PORT}:6379"  # ограничиваем доступ хостом localhost, порт из .env
     networks:
       - new_car_sell_notify_net
     volumes:
-      - redis_data:/data
+      - new_car_sell_notify_service_redis_data:/data
     command: ["redis-server", "--appendonly", "yes"]
     # Без пароля по требованию. Для продакшена рекомендуется добавить --requirepass.
+
+  new_car_sell_notify_service_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: new_car_sell_notify_service_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:${FASTAPI_PORT}:8000"  # ограничиваем доступ хостом localhost, порт из .env
+    networks:
+      - new_car_sell_notify_net
+    depends_on:
+      - new_car_sell_notify_service_redis
+    environment:
+      - REDIS_HOST=new_car_sell_notify_service_redis  # используем имя сервиса для подключения к Redis внутри Docker сети
+      - ENV=production
 
 networks:
   new_car_sell_notify_net:
@@ -23,5 +43,5 @@ networks:
     # external: false  # не указываем external:true, сеть создастся автоматически
 
 volumes:
-  redis_data:
+  new_car_sell_notify_service_redis_data:
     driver: local

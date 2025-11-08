@@ -18,3 +18,28 @@ class NewCarNotify(BaseModel):
     advert_url: HttpUrl
     analytics: str
     seller_phone: PhoneNumber
+
+
+class NewCarNotifyResponse(BaseModel):
+    """
+    ## Модель ответа при успешном добавлении уведомления.
+
+    Attributes:
+        success (bool): Статус успешности операции.
+        message (str): Сообщение о результате операции.
+    """
+    success: bool
+    message: str = "Уведомление успешно добавлено"
+
+
+class NewCarNotifyListResponse(BaseModel):
+    """
+    ## Модель ответа для списка уведомлений о продаже новых автомобилей.
+
+    Args:
+        BaseModel (pydantic.BaseModel): _description_.
+
+    Attributes:
+        data (list[NewCarNotify]): Список уведомлений о продаже новых автомобилей.
+    """    
+    data: list[NewCarNotify]

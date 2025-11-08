@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 
 
-router = APIRouter(prefix='/lifecheck')
+router = APIRouter(prefix='/lifecheck', tags=['health', 'v1'])
 
 
 

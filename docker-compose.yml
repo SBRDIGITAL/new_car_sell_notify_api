@@ -1,0 +1,27 @@
+# docker-compose для локальной разработки: запускает только Redis.
+# Redis доступен на localhost:6379 (порт прокидывается наружу), без пароля.
+# Создаётся внутренняя сеть `new_car_sell_notify_net` для общения между сервисами (можно добавить fastapi сервис позже).
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"  # ограничиваем доступ хостом localhost
+    networks:
+      - new_car_sell_notify_net
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    # Без пароля по требованию. Для продакшена рекомендуется добавить --requirepass.
+
+networks:
+  new_car_sell_notify_net:
+    name: new_car_sell_notify_net
+    driver: bridge
+    # external: false  # не указываем external:true, сеть создастся автоматически
+
+volumes:
+  redis_data:
+    driver: local

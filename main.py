@@ -10,6 +10,7 @@ from fastapi import FastAPI, APIRouter
 
 from app.api.v1.routes.lifecheck import router as lifecheck_router
 from app.api.v1.routes.notify import router as notify_router
+from app.config.config_reader import env_config
 
 
 
@@ -30,7 +31,7 @@ class FastAPIapp:
         """
         ## Инициализирует экземпляр класса.
         """
-        self.app = FastAPI(lifespan=self.lifespan)
+        self.app = self._create_app()
         self.app_routers: dict[str, list[APIRouter]] = {
             '/v1': [
                 lifecheck_router,
@@ -43,6 +44,28 @@ class FastAPIapp:
     def __post_init(self):
         """ ## Выполняет пост-инициализацию после создания экземпляра класса. """
         self._inlude_routers()
+
+    def _create_app(self) -> FastAPI:
+        """
+        ## Создает и настраивает экземпляр FastAPI приложения.
+        
+        В зависимости от окружения (production/development) настраивает
+        параметры безопасности и доступности документации.
+        
+        Returns:
+            FastAPI: Настроенный экземпляр приложения FastAPI.
+        """
+        is_production = env_config.env.lower() == "production"
+        
+        return FastAPI(
+            lifespan=self.lifespan,
+            # Отключаем документацию и отладочные функции в production
+            docs_url=None if is_production else "/docs",
+            redoc_url=None if is_production else "/redoc",
+            openapi_url=None if is_production else "/openapi.json",
+            # Отключаем отображение деталей ошибок в production
+            debug=not is_production,
+        )
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI):
